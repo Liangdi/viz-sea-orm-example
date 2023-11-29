@@ -13,7 +13,7 @@ carog run
 - [x] list
 - [x] create
 - [x] update
-- [ ] delete
+- [x] delete
 
 ## SCREENSHOT
 
