@@ -20,7 +20,6 @@
             </div>
 
             <div id="todo-container" class="flex flex-col gap-2">
-
             </div>
         </div>
     </div>
@@ -32,9 +31,7 @@
                 class="flex gap-2 bg-green-400 rounded-xl px-4 py-2 w-full cursor-pointer select-none transition-all">
                     <div class="flex justify-center items-center w-6 h-6 rounded-md outline outline-1 outline-black">
                         ✔
-
                     </div>
-                   
                 </div>
     `;
     var unchecked_tpl = `
@@ -42,9 +39,7 @@
                     class="flex gap-2 bg-red-400 rounded-xl px-4 py-2 w-full cursor-pointer select-none transition-all">
                     <div class="flex justify-center items-center w-6 h-6 rounded-md outline outline-1 outline-black">
                         ❌
-
                     </div>
-                    
                 </div>
     `
 
@@ -61,20 +56,31 @@
                 }
             });
         },
-        create_div(todo, html, parent) {
+        create_div: (todo, html, parent) => {
             var div = document.createElement("div");
             div.setAttribute("id", todo['id']);
             div.innerHTML = html;
             parent.appendChild(div);
             var child = document.createElement("div")
+            child.classList = "flex-1"
             child.innerHTML = `
-                    <div class="h-full">
                         ${todo['text']}
-                    </div>
                     `
+
+            var close_div = document.createElement("div");
+            close_div.classList = "text-xs rounded-full bg-gray-100 p-1"
+            close_div.innerHTML = "❌";
+            close_div.addEventListener("click", (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                service.delete(todo['id']);
+
+            })
             var new_el = document.getElementById(todo['id']);
             new_el.getElementsByTagName("div")[0]
                 .appendChild(child);
+
+            new_el.getElementsByTagName("div")[0].appendChild(close_div)
             new_el.addEventListener("click", () => {
                 todo['completed'] = !todo['completed'];
                 service.update(todo);
@@ -109,7 +115,12 @@
                 .catch(err => console.log('Request Failed', err));
         },
         delete: (id) => {
-
+            fetch(`/todos/${id}`, { method: "DELETE", headers: { "Content-Type": "application/json; charset=utf-8" } })
+                .then(response => response.json())
+                .then(json => {
+                    service.load();
+                })
+                .catch(err => console.log('Request Failed', err));
         }
     }
     document.addEventListener("DOMContentLoaded", () => {
